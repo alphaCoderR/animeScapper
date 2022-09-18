@@ -1,11 +1,8 @@
 import requests
 import re
 from bs4 import BeautifulSoup as bs
-import pandas as pd
 import urllib.parse
-from animate import (search_loader)
-
-pd.set_option('display.max_colwidth', 500)
+from animate import (search_loader, loader)
 
 
 def searchModule(animeName):
@@ -29,9 +26,22 @@ def searchModule(animeName):
         print(index+1, name)
 
 
+def pageModule(choice):
+    page = requests.get(searchList[choice-1]["Link"])
+    searchList.clear()
+    soup = bs(page.content, "html.parser")
+    fetchedLinks = soup.find_all(class_="shortc-button")
+    for i in fetchedLinks:
+        name = i.contents[0]
+        link = i.get("href")
+        option = dict({"Name": name, "Link": link})
+        searchList.append(option)
+    print(searchList)
+
+
 animeName = urllib.parse.quote(input("Enter the name of the anime : "))
 searchModule(animeName)
 choice = int(input("Enter your choice : "))
-page = requests.get(searchList[choice-1]["Link"])
-print(page)
+pageModule(choice)
+# print(page)
 # print(searchList[0]["Link"])
