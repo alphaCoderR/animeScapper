@@ -1,3 +1,4 @@
+from pickle import FALSE, TRUE
 import requests
 import re
 from bs4 import BeautifulSoup as bs
@@ -22,21 +23,36 @@ def searchModule(animeName):
         option = dict({"Name": name, "Link": link})
         searchList.append(option)
         if index == 0:
-            search_loader.stop()
+            # search_loader.stop()
+            search_loader.succeed("Success !!")
         print(index+1, name)
 
 
 def pageModule(choice):
+    loader.start()
+    isGoogleGroup = False
     page = requests.get(searchList[choice-1]["Link"])
     searchList.clear()
     soup = bs(page.content, "html.parser")
     fetchedLinks = soup.find_all(class_="shortc-button")
-    for i in fetchedLinks:
-        name = i.contents[0]
-        link = i.get("href")
-        option = dict({"Name": name, "Link": link})
-        searchList.append(option)
-    print(searchList)
+    index=0
+    for ele in fetchedLinks:
+        if index == 0:
+            loader.succeed("Success !!")
+        name = ele.contents[0]
+        link = ele.get("href")
+        if ((name == "Google Group" and isGoogleGroup == False) or (name != "Google Group")):
+            option = dict({"Name": name, "Link": link})
+            searchList.append(option)
+            print(index+1, name)
+            index=index+1
+            if name == "Google Group":
+                isGoogleGroup = True
+        elif name == "Google Group":
+            isGoogleGroup = True
+        else:
+            continue
+    #print(len(searchList))
 
 
 animeName = urllib.parse.quote(input("Enter the name of the anime : "))
